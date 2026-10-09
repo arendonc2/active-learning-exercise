@@ -1,0 +1,9 @@
+# Fijamos el tema claro para que la demostración se vea igual en cualquier
+# equipo, sin importar la preferencia de tema del sistema o del navegador.
+# Así se evita el problema de "fondo blanco con letra blanca".
+[theme]
+base = "light"
+primaryColor = "#2563eb"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f5f7fa"
+textColor = "#111827"
