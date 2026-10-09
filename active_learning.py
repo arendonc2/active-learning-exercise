@@ -240,6 +240,18 @@ class Demostracion:
         self.aleatoria.proponer_siguiente(self.n_por_ronda, self.semilla + self.ronda)
         self.incertidumbre.proponer_siguiente(self.n_por_ronda, self.semilla + self.ronda)
 
+    def fijar_n_por_ronda(self, n: int) -> None:
+        """Cambia cuántos ejemplos se etiquetan por ronda y re-propone.
+
+        No avanza la ronda ni toca lo ya etiquetado: solo ajusta el tamaño de
+        la próxima tanda y vuelve a calcular la selección propuesta para que la
+        vista previa (los puntos con borde) refleje el nuevo valor de inmediato.
+        El cambio se aplica por igual a ambas estrategias, manteniendo la
+        comparación justa.
+        """
+        self.n_por_ronda = max(1, int(n))
+        self._proponer_todas()
+
     @property
     def hay_disponibles(self) -> bool:
         return (

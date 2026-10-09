@@ -99,3 +99,35 @@ def test_no_quedan_disponibles_al_final():
         demo.avanzar_ronda()
     # Debe detenerse sin error aunque se pida más de lo disponible.
     assert demo.aleatoria.n_etiquetados <= len(datos.X_pool)
+
+
+def test_fijar_n_por_ronda_cambia_tamano_de_seleccion():
+    """Cambiar el n por ronda debe reflejarse en la cantidad propuesta."""
+    demo = _demo()
+    demo.fijar_n_por_ronda(10)
+    assert demo.n_por_ronda == 10
+    assert len(demo.aleatoria.seleccion_actual) == 10
+    assert len(demo.incertidumbre.seleccion_actual) == 10
+
+
+def test_fijar_n_por_ronda_no_toca_lo_ya_etiquetado():
+    """Ajustar el tamaño no debe alterar los ejemplos ya etiquetados."""
+    demo = _demo()
+    etiquetados_antes = list(demo.aleatoria.etiquetados)
+    demo.fijar_n_por_ronda(3)
+    assert demo.aleatoria.etiquetados == etiquetados_antes
+
+
+def test_fijar_n_por_ronda_minimo_uno():
+    demo = _demo()
+    demo.fijar_n_por_ronda(0)
+    assert demo.n_por_ronda == 1
+
+
+def test_avanzar_respeta_n_elegido_por_usuario():
+    demo = _demo()
+    n0 = demo.aleatoria.n_etiquetados
+    demo.fijar_n_por_ronda(8)
+    demo.avanzar_ronda()
+    assert demo.aleatoria.n_etiquetados == n0 + 8
+    assert demo.incertidumbre.n_etiquetados == n0 + 8

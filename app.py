@@ -73,7 +73,11 @@ def iniciar_demo():
         tam_test=0.4,
         n_inicial_por_clase=3,
     )
-    st.session_state.demo = Demostracion(datos=datos, n_por_ronda=6, semilla=42)
+    # Cantidad de ejemplos a etiquetar por ronda (controlada por el usuario).
+    n_por_ronda = int(st.session_state.get("n_por_ronda", 6))
+    st.session_state.demo = Demostracion(
+        datos=datos, n_por_ronda=n_por_ronda, semilla=42
+    )
     st.session_state.fase = "inicio"  # inicio | seleccion | revelacion | comparacion
 
 
@@ -405,12 +409,49 @@ zona central las nubes se mezclan: ahí viven los casos difíciles.
 st.divider()
 
 # --------------------------------------------------------------------------- #
+# Control manual: ejemplos a etiquetar por ronda
+# --------------------------------------------------------------------------- #
+# El máximo razonable es la cantidad de ejemplos que aún quedan disponibles.
+disponibles_ahora = min(
+    len(demo.aleatoria.indices_disponibles),
+    len(demo.incertidumbre.indices_disponibles),
+)
+tope = max(1, disponibles_ahora)
+
+st.markdown("##### 🎚️ ¿Cuántos ejemplos etiquetar por ronda?")
+nuevo_n = st.slider(
+    "Elige cuántas etiquetas aprobará el oráculo en la próxima ronda. "
+    "Se aplica por igual a ambas estrategias.",
+    min_value=1,
+    max_value=min(30, tope),
+    value=min(int(demo.n_por_ronda), min(30, tope)),
+    step=1,
+    key="n_por_ronda",
+    disabled=not demo.hay_disponibles,
+)
+# Si el usuario cambió el valor, lo aplicamos y re-proponemos la selección
+# para que la vista previa (puntos con borde) refleje de inmediato el nuevo n.
+if demo.hay_disponibles and nuevo_n != demo.n_por_ronda:
+    demo.fijar_n_por_ronda(nuevo_n)
+    st.session_state.fase = "seleccion"
+    st.rerun()
+
+st.caption(
+    f"En la próxima ronda, cada estrategia etiquetará **{demo.n_por_ronda}** "
+    "ejemplo(s). Cambiar este valor no afecta lo ya etiquetado; se aplica a las "
+    "rondas siguientes."
+)
+
+st.write("")
+
+# --------------------------------------------------------------------------- #
 # Controles
 # --------------------------------------------------------------------------- #
 c1, c2, c3, c4 = st.columns([1.4, 1.4, 1, 1])
 
 with c1:
-    if st.button("🏷️ Etiquetar siguiente ronda", type="primary",
+    if st.button(f"🏷️ Etiquetar siguiente ronda ({demo.n_por_ronda})",
+                 type="primary",
                  width='stretch', disabled=not demo.hay_disponibles):
         # Avanza una ronda: revela las etiquetas propuestas, reentrena y
         # vuelve a proponer la siguiente selección.
