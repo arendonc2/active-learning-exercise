@@ -409,6 +409,62 @@ zona central las nubes se mezclan: ahí viven los casos difíciles.
 st.divider()
 
 # --------------------------------------------------------------------------- #
+# Sección 3: Paradigma y criterio de selección (antes del laboratorio)
+# --------------------------------------------------------------------------- #
+with st.expander("🧭 Antes de empezar: ¿qué paradigma de Active Learning usamos?",
+                 expanded=True):
+    pa, pb = st.columns(2)
+    with pa:
+        st.markdown(
+            """
+#### 📦 Paradigma: muestreo basado en conjunto (*pool-based*)
+Trabajamos con el escenario de **aprendizaje activo basado en conjunto**
+(*pool-based active learning*): existe un **conjunto fijo** de ejemplos ya
+disponibles pero **sin etiquetar** (el *pool* gris). En cada ronda, la
+estrategia **mira todo ese conjunto**, puntúa cada ejemplo y elige los que
+pedirá etiquetar al oráculo.
+
+Es el escenario más común en la práctica (lo contrario a generar ejemplos
+nuevos o decidir sobre un flujo que llega uno a uno).
+            """
+        )
+    with pb:
+        st.markdown(
+            """
+#### 🎯 Criterio: muestreo por incertidumbre (*menor confianza*)
+Para la estrategia de active learning usamos **muestreo por incertidumbre**
+(*uncertainty sampling*) con el criterio de **menor confianza**
+(*least confident*):
+
+1. El modelo predice, para cada ejemplo sin etiquetar, la probabilidad de cada
+   categoría.
+2. Se mira la **probabilidad máxima** (la de la clase más probable): si es alta,
+   el modelo está seguro; si es baja, está dudando.
+3. Se eligen los ejemplos con la **probabilidad máxima más baja**, es decir,
+   donde el modelo está **menos seguro**.
+
+En 2D, esos puntos suelen caer **cerca de la frontera de decisión**, en la zona
+donde las dos categorías se mezclan.
+            """
+        )
+    st.markdown(
+        r"""
+**En fórmula**, se elige el ejemplo $x$ que maximiza la incertidumbre de menor
+confianza:
+
+$$x^{*} = \arg\max_{x}\;\Big(1 - \max_{c}\,P(y=c \mid x)\Big)$$
+
+equivalente a elegir el $x$ con **menor** $\max_{c} P(y=c\mid x)$. Cuando se
+etiqueta más de uno por ronda, se toman los de menor confianza en orden.
+
+La estrategia **aleatoria** no usa ningún criterio: escoge del mismo conjunto
+*al azar*. Sirve como línea base para comparar.
+        """
+    )
+
+st.divider()
+
+# --------------------------------------------------------------------------- #
 # Control manual: ejemplos a etiquetar por ronda
 # --------------------------------------------------------------------------- #
 # El máximo razonable es la cantidad de ejemplos que aún quedan disponibles.
